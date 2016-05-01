@@ -1,0 +1,10 @@
+base
+knitr
+slidify
+slidifyLibraries
+shiny
+ggplot2
+devtools
+googleVis
+XML
+ggvis

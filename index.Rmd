@@ -1,0 +1,107 @@
+---
+title       : Developing Data Products - Coursera
+subtitle    : Locations of Earthquakes occuring near the Tonga Trench
+author      : Chana VanNice
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+## Locations of Earthquakes occurring near the Tonga Trench 
+
+This is a presentation to show the frequency of earthquakes that occur near the Tonga Trench using various data products.  The presentation will utilize multiple products that were demonstrated in the 'Developing Data Products' course offered by [Coursera](https://www.coursera.org/). The data used in this presentation is comprised of the "quake" dataset,available in RStudio, and from [R bollerqvist](http://ekqvist.goeuropeinfo.com/rbloggerqvist). The Classifications of the earthquakes were obtained from the [Michigan Tech University UPSeis website](http://www.geo.mtu.edu/UPSeis/magnitude.html). 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=3}
+
+library(knitr)
+opts_chunk$set(echo = TRUE, results = 'hold')
+library(slidify)
+library(slidifyLibraries)
+library(shiny)
+library(ggplot2)
+library(devtools)
+library(datasets)
+library(googleVis)
+library(XML)
+library(ggvis)
+
+# Load data
+data(quakes)
+# Define variables
+mag <- quakes[,4]
+stations <- quakes[,5]
+magMean <- mean(quakes[,4])
+
+# Create classification for quakes, used in ggvis plot but had to remove. keeping code
+quakes$classification <- NA
+quakes$classification[quakes$mag > 2.9] <- "Minor"
+quakes$classification[quakes$mag > 3.9] <- "Light"
+quakes$classification[quakes$mag > 4.9] <- "Moderate"
+quakes$classification[quakes$mag > 5.9] <- "Strong"
+quakes$classification[quakes$mag > 6.9] <- "Major"
+quakes$classification[quakes$mag > 8] <- "Great"
+
+quakes$classification <- factor(quakes$classification)
+classification <- quakes$classification
+
+# Plot frequency of earthquakes
+hist(mag, col = "pink", main = "Frequency & mean of Earthquakes near Tonga Trench")
+abline(v=magMean, col = "blue", lwd = 2)
+```
+ 
+
+--- .class #id
+ 
+## Data Products 
+
+The following data products were used in this presentation. 
+> - [Slidify](http://slidify.org/) Reproducible HTML5 slide decks 
+> - [Shiny](http://shiny.rstudio.com/) Create interactive web application 
+> - [Google Chart Tools](https://developers.google.com/chart/) Interactive charts for brosers 
+> - [GitHub](https://www.github.com) Web-based Git repository hosting service 
+> - [RPubs](http://rpubs.com/) Web Publishing from R
+
+The GitHub for this entire project is available on: [https://github.com/CjustC/Developing_Data_Products](https://github.com/CjustC/Developing_Data_Products) 
+ 
+
+--- .class #id
+
+## Interactive Fiji Map
+
+```{r interactive, echo = FALSE, warning=FALSE, results = 'asis', tidy = TRUE}
+
+# Interactive map of Earthquakes near Fiji using Google Charts 
+# Prepare data for use in interactive chart
+# Remove any NULL values
+quakes <- na.omit(quakes)
+
+# lat and lon must be the same variable to be used in the plotting of the map
+quakes$loc <- paste(quakes$lat, quakes$long, sep = ":")
+
+# Remove any Nulls prior to plotting
+quakes <- quakes[complete.cases(quakes),]
+
+# Define Interactive Plot
+earthq <- gvisGeoMap(quakes, locationvar="loc", numvar="mag", hovervar="stations", options = list(dataMode="markers", region = "009"))
+
+# Plot
+earthq
+```
+
+The map shows the earthquake occurrences near the Tonga Trench based on the "quakes" data. Hovering over the green circles displays the station number and magnitude of each quake. The green gradient levels as shown in the "legend" denotes magnitude level. 
+
+--- .class #id
+
+## Shiny Application 
+
+The [Shiny application](https://minionapp.shinyapps.io/quake_app/) demonstrates the classification of earthquakes located near the Tonga Trench. The user interaction is to move the slider to any point within the slider range and the application will output the classification of the earthquake. The Shiny App can be found at [https://minionapp.shinyapps.io/quake_app/](https://minionapp.shinyapps.io/quake_app/).
+
+<center><img src=./assets/img/ShinyApp.png height='50%' width='50%' style='margin:0px; border: 2px solid #0a0942'/></center> 
+
